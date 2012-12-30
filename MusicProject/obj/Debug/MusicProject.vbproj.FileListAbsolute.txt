@@ -1,0 +1,14 @@
+C:\Users\Google\Desktop\MusicProject\MusicProject\bin\Debug\MusicProject.exe
+C:\Users\Google\Desktop\MusicProject\MusicProject\bin\Debug\MusicProject.pdb
+C:\Users\Google\Desktop\MusicProject\MusicProject\bin\Debug\MusicProject.xml
+C:\Users\Google\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.Resources.resources
+C:\Users\Google\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.vbproj.GenerateResource.Cache
+C:\Users\Google\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.exe
+C:\Users\Google\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.xml
+C:\Users\Google\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
+G:\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.exe
+G:\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.xml
+G:\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
+C:\Users\Google\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.exe
+C:\Users\Google\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.xml
+C:\Users\Google\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.pdb

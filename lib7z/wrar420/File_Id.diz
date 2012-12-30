@@ -1,0 +1,14 @@
+  WinRAR archiver 4.20
+  --------------------
+- complete RAR and ZIP support
+- unpacking of CAB, ARJ, LZH, ACE, UUE,
+  TAR, GZ, BZ2, JAR, ISO, Z, 7Z
+- GUI and console versions
+- tight general and multimedia compression
+- data recovery record option
+- tested to handle over 1 million files
+- archive sizes up to 8 exabytes
+- support for NTFS security and streams
+- industry standard AES encryption
+- customizable self-extracting archives
+- support for Unicode in file names

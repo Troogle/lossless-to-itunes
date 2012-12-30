@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WinMount Author="jiangjiong" Translator="jiangjiong" Version="3.2">
+  <Strings>
+	<CtntHead>请在下面的文本框输入您的意见或者评论,谢谢!</CtntHead>
+	<BugInfo>如果WinMount出现崩溃的情况，我们感到非常抱歉！如果您详细描述一下引起这个问题的原因，并发送给我们，将便于WinMount开发组快速查找问题的原因，谢谢！</BugInfo>
+	<UERR>未知错误!</UERR>
+	<Title>WinMount 用户反馈</Title>
+	<Submit>您的信息已经成功提交,你需要关闭此窗口吗?</Submit>
+	<InVldMail>%s不是正确的邮箱地址!</InVldMail>
+	<InputMail>请输入您的邮箱地址!</InputMail>
+	<InputSubject>请输入您的主题</InputSubject>
+</Strings>
+
+<MDlg>
+	<T>问题反馈</T>
+	<A>主题</A>
+	<B>问题描述</B>
+	<C>发送</C>
+	<D>我愿意得到WinMount客服的回复</D>
+	<E>我的邮箱</E>
+</MDlg>
+</WinMount>
