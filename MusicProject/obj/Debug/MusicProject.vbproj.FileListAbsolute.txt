@@ -12,3 +12,6 @@ G:\Desktop\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
 C:\Users\Google\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.exe
 C:\Users\Google\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.xml
 C:\Users\Google\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
+G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.exe
+G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.xml
+G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
