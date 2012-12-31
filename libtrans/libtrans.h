@@ -14,6 +14,7 @@
 class LIBTRANS_API Clibtrans {
 public:
 	Clibtrans(void);
+	void convertape(void);
 	// TODO: 在此添加您的方法。
 };
 
