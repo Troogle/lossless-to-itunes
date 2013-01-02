@@ -1,0 +1,84 @@
+[Version]
+Signature="$CHICAGO$"
+Provider=kajaa@eastday.com, 2002
+
+[DefaultInstall]
+; DelReg=1_DelReg
+AddReg=1_AddReg
+
+[DefaultUnInstall]
+DelReg=1_DelReg
+
+[1_DelReg]
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro"
+
+hkcu,"Software\DT Soft\DAEMON Tools Pro"
+
+hklm,"SYSTEM\CurrentControlSet\Enum\Root\SYSTEM\0003"
+hklm,"SYSTEM\CurrentControlSet\Enum\Root\SYSTEM\0003"
+hklm,"SYSTEM\CurrentControlSet\Services\dtsoftbus01"
+
+hklm,"SYSTEM\CurrentControlSet\Control\Class\{4D36E97D-E325-11CE-BFC1-08002BE10318}\0041"
+
+hklm,"SYSTEM\CurrentControlSet\Services\redbook\Enum"
+
+
+[1_AddReg]
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro","Path",,"%01%\"
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro","Version Major",,"4"
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro","Version Minor",,"40"
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro","Version Release",,"2"
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\Config","AdapterStateSCSI",0x10001,01,00,00,00
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave","FileAssoc",0x10001,ff,1f,00,00
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.b5t","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.b6t","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.bwt","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.ccd","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.cdi","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.cue","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.iso","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.isz","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.mdf","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.mds","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.mdx","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.nrg","Type",,""
+
+hklm,"SOFTWARE\DT Soft\DAEMON Tools Pro\FileTypesSave\.pdi","Type",,""
+
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Config","Autostart",0x10001,00,00,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Config","Automount",0x10001,00,00,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Config","CheckForUpdate",0x10001,00,00,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Config","SendStatistic",0x10001,00,00,00,00
+
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Config\ConnectionSettings","ProxyUse",0x10001,00,00,00,00
+
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Hotkeys","HotKey0",,"0"
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Hotkeys","HotKey1",,"0"
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Hotkeys","HotKey2",,"0"
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Hotkeys","HotKey3",,"0"
+
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Options","ManageWidth",0x10001,e6,01,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Options","ManageHeight",0x10001,c0,01,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Options","ManageLeft",0x10001,dd,01,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Options","ManageTop",0x10001,8c,00,00,00
+hkcu,"Software\DT Soft\DAEMON Tools Pro\Options","ManageShowState",0x10001,01,00,00,00
+
+hkcu,"Software\DT Soft\DAEMON Tools Pro\View","Language",0x10001,04,08,00,00
+
+[Strings]
+
