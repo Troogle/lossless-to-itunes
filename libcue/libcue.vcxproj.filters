@@ -45,4 +45,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MyForm.resx">
+      <Filter>资源文件</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
