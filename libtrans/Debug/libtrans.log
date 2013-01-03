@@ -1,0 +1,22 @@
+﻿生成启动时间为 2013/01/3 周四 17:00:54。
+     1>项目“G:\Desktop\Music\MusicProject\libtrans\libtrans.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         L:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D LIBTRANS_EXPORTS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\libtrans.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt libtrans.cpp
+         libtrans.cpp
+     1>g:\desktop\music\musicproject\libtrans\libtrans.cpp(96): warning C4244: “参数”: 从“int64_t”转换到“int”，可能丢失数据
+     1>g:\desktop\music\musicproject\libtrans\libtrans.cpp(105): warning C4244: “参数”: 从“int64_t”转换到“int”，可能丢失数据
+     1>g:\desktop\music\musicproject\libtrans\libtrans.cpp(110): warning C4244: “参数”: 从“int64_t”转换到“int”，可能丢失数据
+       Lib:
+         L:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"G:\Desktop\Music\MusicProject\Debug\libtrans.lib" MACLib.lib avcodec.lib avformat.lib avutil.lib /LIBPATH:L:\mingw\bin /NOLOGO Debug\dllmain.obj
+         Debug\libtrans.obj
+         Debug\stdafx.obj
+     1>avformat.lib(avformat-54.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR 已在 avcodec.lib(avcodec-54.dll) 中定义；已忽略第二个定义
+     1>avformat.lib(avformat-54.dll) : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
+     1>avutil.lib(avutil-52.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR 已在 avcodec.lib(avcodec-54.dll) 中定义；已忽略第二个定义
+     1>avutil.lib(avutil-52.dll) : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
+         libtrans.vcxproj -> G:\Desktop\Music\MusicProject\Debug\libtrans.lib
+     1>已完成生成项目“G:\Desktop\Music\MusicProject\libtrans\libtrans.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.54

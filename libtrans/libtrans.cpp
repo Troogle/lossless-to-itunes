@@ -16,41 +16,145 @@ Clibtrans::Clibtrans()
 {
 	return;
 }
-void Clibtrans::audio_dec(const char *outfilename, const char *filename)
+inline void debug_string(char* errconfig){fprintf(stderr, errconfig);}
+int Clibtrans::get_format_from_sample_fmt(const char **fmt,enum AVSampleFormat sample_fmt)
 {
-    av_register_all();
-	if (avformat_open_input(&fmt_ctx, filename, NULL, NULL) < 0) {
-        (stderr, "Could not open source file %s\n", src_filename);
-        exit(1);
+    int i;
+    struct sample_fmt_entry {
+        enum AVSampleFormat sample_fmt; const char *fmt_be, *fmt_le;
+    } sample_fmt_entries[] = {
+        { AV_SAMPLE_FMT_U8,  "u8",    "u8"    },
+        { AV_SAMPLE_FMT_S16, "s16be", "s16le" },
+        { AV_SAMPLE_FMT_S32, "s32be", "s32le" },
+        { AV_SAMPLE_FMT_FLT, "f32be", "f32le" },
+        { AV_SAMPLE_FMT_DBL, "f64be", "f64le" },
+    };
+    *fmt = NULL;
+
+    for (i = 0; i < FF_ARRAY_ELEMS(sample_fmt_entries); i++) {
+        struct sample_fmt_entry *entry = &sample_fmt_entries[i];
+        if (sample_fmt == entry->sample_fmt) {
+            *fmt = AV_NE(entry->fmt_be, entry->fmt_le);
+            return 0;
+        }
     }
+
+    fprintf(stderr,
+            "sample format %s is not supported as output format\n",
+            av_get_sample_fmt_name(sample_fmt));
+    return -1;
+}
+int Clibtrans::open_codec_context(int *stream_idx,
+                              AVFormatContext *fmt_ctx, enum AVMediaType type)
+{
+    int ret;
+    AVStream *st;
+    AVCodecContext *dec_ctx = NULL;
+    AVCodec *dec = NULL;
+
+    ret = av_find_best_stream(fmt_ctx, type, -1, -1, NULL, 0);
+    if (ret < 0) {
+        fprintf(stderr, "Could not find %s stream in input file '%s'\n",
+                av_get_media_type_string(type), src_filename);
+        return ret;
+    } else {
+        *stream_idx = ret;
+        st = fmt_ctx->streams[*stream_idx];
+
+        /* find decoder for the stream */
+        dec_ctx = st->codec;
+        dec = avcodec_find_decoder(dec_ctx->codec_id);
+        if (!dec) {
+            fprintf(stderr, "Failed to find %s codec\n",
+                    av_get_media_type_string(type));
+            return ret;
+        }
+
+        if ((ret = avcodec_open2(dec_ctx, dec, NULL)) < 0) {
+            fprintf(stderr, "Failed to open %s codec\n",
+                    av_get_media_type_string(type));
+            return ret;
+        }
+    }
+
+    return 0;
+}
+int Clibtrans:: decode_packet(int *got_frame, int cached)
+{
+     int ret = 0;
+
+    if (pkt.stream_index == audio_stream_idx) {
+        /* decode audio frame */
+        ret = avcodec_decode_audio4(audio_dec_ctx, frame, got_frame, &pkt);
+        if (ret < 0) {
+            fprintf(stderr, "Error decoding audio frame\n");
+            return ret;
+        }
+
+        if (*got_frame) {
+            ret = av_samples_alloc(audio_dst_data, &audio_dst_linesize, frame->channels,
+                                   frame->nb_samples, (enum AVSampleFormat)frame->format, 1);
+            if (ret < 0) {
+                fprintf(stderr, "Could not allocate audio buffer\n");
+                return AVERROR(ENOMEM);
+            }
+
+            /* TODO: extend return code of the av_samples_* functions so that this call is not needed */
+            audio_dst_bufsize =
+                av_samples_get_buffer_size(NULL, frame->channels,
+                                           frame->nb_samples, (enum AVSampleFormat)frame->format, 1);
+
+            /* copy audio data to destination buffer:
+             * this is required since rawaudio expects non aligned data */
+            av_samples_copy(audio_dst_data, frame->data, 0, 0,
+                            frame->nb_samples, frame->channels, (enum AVSampleFormat)frame->format);
+
+            /* write to rawaudio file */
+            fwrite(audio_dst_data[0], 1, audio_dst_bufsize, audio_dst_file);
+            av_freep(&audio_dst_data[0]);
+        }
+    }
+
+    return ret;
+}
+int Clibtrans::audio_dec(const char *outfilename, const char *filename)
+{
+
+	src_filename=filename;
+	int ret = 0, got_frame;
+	av_register_all();
+	if (avformat_open_input(&fmt_ctx, filename, NULL, NULL) < 0) {
+        fprintf(stderr, "Could not open source file %s\n", filename);
+        return 1;
+    }
+	
 	if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
         fprintf(stderr, "Could not find stream information\n");
-        exit(1);
+        return 1;
     }
 	    if (open_codec_context(&audio_stream_idx, fmt_ctx, AVMEDIA_TYPE_AUDIO) >= 0) {
         int nb_planes;
-
-        audio_stream = fmt_ctx->streams[audio_stream_idx];
+		audio_stream = fmt_ctx->streams[audio_stream_idx];
         audio_dec_ctx = audio_stream->codec;
-        audio_dst_file = fopen(audio_dst_filename, "wb");
+        fopen_s(&audio_dst_file,outfilename, "wb");
         if (!audio_dst_file) {
-            fprintf(stderr, "Could not open destination file %s\n", video_dst_filename);
+            fprintf(stderr, "Could not open destination file %s\n", outfilename);
             ret = 1;
             goto end;
         }
 
         nb_planes = av_sample_fmt_is_planar(audio_dec_ctx->sample_fmt) ?
             audio_dec_ctx->channels : 1;
-        audio_dst_data = av_mallocz(sizeof(uint8_t *) * nb_planes);
+        *audio_dst_data = (unsigned char *)av_mallocz(sizeof(uint8_t *) * nb_planes);
         if (!audio_dst_data) {
             fprintf(stderr, "Could not allocate audio data buffers\n");
             ret = AVERROR(ENOMEM);
             goto end;
         }
     }
-		    av_dump_format(fmt_ctx, 0, src_filename, 0);
+		    av_dump_format(fmt_ctx, 0, filename, 0);
 
-    if (!audio_stream && !video_stream) {
+    if (!audio_stream) {
         fprintf(stderr, "Could not find audio or video stream in the input, aborting\n");
         ret = 1;
         goto end;
@@ -68,10 +172,8 @@ void Clibtrans::audio_dec(const char *outfilename, const char *filename)
     pkt.data = NULL;
     pkt.size = 0;
 
-    if (video_stream)
-        printf("Demuxing video from file '%s' into '%s'\n", src_filename, video_dst_filename);
     if (audio_stream)
-        printf("Demuxing audio from file '%s' into '%s'\n", src_filename, audio_dst_filename);
+        printf("Demuxing audio from file '%s' into '%s'\n", filename, outfilename);
 
     /* read frames from the file */
     while (av_read_frame(fmt_ctx, &pkt) >= 0)
@@ -80,18 +182,11 @@ void Clibtrans::audio_dec(const char *outfilename, const char *filename)
     /* flush cached frames */
     pkt.data = NULL;
     pkt.size = 0;
-    do {
+   do {
         decode_packet(&got_frame, 1);
     } while (got_frame);
 
     printf("Demuxing succeeded.\n");
-
-    if (video_stream) {
-        printf("Play the output video file with the command:\n"
-               "ffplay -f rawvideo -pix_fmt %s -video_size %dx%d %s\n",
-               av_get_pix_fmt_name(video_dec_ctx->pix_fmt), video_dec_ctx->width, video_dec_ctx->height,
-               video_dst_filename);
-    }
 
     if (audio_stream) {
         const char *fmt;
@@ -101,121 +196,126 @@ void Clibtrans::audio_dec(const char *outfilename, const char *filename)
         printf("Play the output audio file with the command:\n"
                "ffplay -f %s -ac %d -ar %d %s\n",
                fmt, audio_dec_ctx->channels, audio_dec_ctx->sample_rate,
-               audio_dst_filename);
+               outfilename);
     }
 
 end:
-    if (video_dec_ctx)
-        avcodec_close(video_dec_ctx);
     if (audio_dec_ctx)
         avcodec_close(audio_dec_ctx);
     avformat_close_input(&fmt_ctx);
-    if (video_dst_file)
-        fclose(video_dst_file);
     if (audio_dst_file)
         fclose(audio_dst_file);
     av_free(frame);
-    av_free(video_dst_data[0]);
     av_free(audio_dst_data);
 
     return ret < 0;
 }
-    //#define INBUF_SIZE 4096
-    //#define AUDIO_INBUF_SIZE 20480
-    //#define AUDIO_REFILL_THRESH 4096
-    //avcodec_register_all();
-    //AVCodec *codec;
-    //AVCodecContext *c= NULL;
-    //int len;
-    //FILE *f, *outfile;
-    //uint8_t inbuf[AUDIO_INBUF_SIZE + FF_INPUT_BUFFER_PADDING_SIZE];
-    //AVPacket avpkt;
-    //AVFrame *decoded_frame = NULL;
-
-    //av_init_packet(&avpkt);
-
-    ///* find the mpeg audio decoder */
-    //codec = avcodec_find_decoder(AV_CODEC_ID_MP2);
-    //if (!codec) {
-    //    fprintf(stderr, "Codec not found\n");
-    //    exit(1);
-    //}
-
-    //c = avcodec_alloc_context3(codec);
-    //if (!c) {
-    //    fprintf(stderr, "Could not allocate audio codec context\n");
-    //    exit(1);
-    //}
-
-    ///* open it */
-    //if (avcodec_open2(c, codec, NULL) < 0) {
-    //    fprintf(stderr, "Could not open codec\n");
-    //    exit(1);
-    //}
-
-    //fopen_s(&f,filename, "rb");
-    //if (!f) {
-    //    fprintf(stderr, "Could not open %s\n", filename);
-    //    exit(1);
-    //}
-    //fopen_s(&outfile,outfilename, "wb");
-    //if (!outfile) {
-    //    av_free(c);
-    //    exit(1);
-    //}
-
-    ///* decode until eof */
-    //avpkt.data = inbuf;
-    //avpkt.size = fread(inbuf, 1, AUDIO_INBUF_SIZE, f);
-
-    //while (avpkt.size > 0) {
-    //    int got_frame = 0;
-
-    //    if (!decoded_frame) {
-    //        if (!(decoded_frame = avcodec_alloc_frame())) {
-    //            fprintf(stderr, "Could not allocate audio frame\n");
-    //            exit(1);
-    //        }
-    //    } else
-    //        avcodec_get_frame_defaults(decoded_frame);
-
-    //    len = avcodec_decode_audio4(c, decoded_frame, &got_frame, &avpkt);
-    //    if (len < 0) {
-    //        fprintf(stderr, "Error while decoding\n");
-    //        exit(1);
-    //    }
-    //    if (got_frame) {
-    //        /* if a frame has been decoded, output it */
-    //        int data_size = av_samples_get_buffer_size(NULL, c->channels,
-    //                                                   decoded_frame->nb_samples,
-    //                                                   c->sample_fmt, 1);
-    //        fwrite(decoded_frame->data[0], 1, data_size, outfile);
-    //    }
-    //    avpkt.size -= len;
-    //    avpkt.data += len;
-    //    avpkt.dts =
-    //    avpkt.pts = AV_NOPTS_VALUE;
-    //    if (avpkt.size < AUDIO_REFILL_THRESH) {
-    //        /* Refill the input buffer, to avoid trying to decode
-    //         * incomplete frames. Instead of this, one could also use
-    //         * a parser, or use a proper container format through
-    //         * libavformat. */
-    //        memmove(inbuf, avpkt.data, avpkt.size);
-    //        avpkt.data = inbuf;
-    //        len = fread(avpkt.data + avpkt.size, 1,
-    //                    AUDIO_INBUF_SIZE - avpkt.size, f);
-    //        if (len > 0)
-    //            avpkt.size += len;
-    //    }
-    //}
-
-    //fclose(outfile);
-    //fclose(f);
-
-    //avcodec_close(c);
-    //av_free(c);
-    //avcodec_free_frame(&decoded_frame);
-}
+//int Clibtrans::audio_dec2(const char *outfilename,const char*filename)
+//{
+//    #define INBUF_SIZE 4096
+//    #define AUDIO_INBUF_SIZE 20480
+//    #define AUDIO_REFILL_THRESH 4096
+//    avcodec_register_all();
+//    AVCodec *codec;
+//    AVCodecContext *c= NULL;
+//    int len;
+//    FILE *f, *outfile;
+//    uint8_t inbuf[AUDIO_INBUF_SIZE + FF_INPUT_BUFFER_PADDING_SIZE];
+//    AVPacket avpkt;
+//    AVFrame *decoded_frame = NULL;
+//    av_init_packet(&avpkt);
+//
+//    /* find the audio decoder */
+//    AVCodecContext *incode_ctx;
+//	AVCodec *incodec;
+//	incode_ctx = infmt_ctx->streams[audioindex]->codec;
+//	incodec = avcodec_find_decoder(incode_ctx->codec_id);
+//	if(incodec == NULL)
+//	{
+//		debug_string("can't find suitable audio decoder/n");
+//		return -4;
+//	}
+//    codec = avcodec_find_decoder(incodec);
+//    if (!codec) {
+//        fprintf(stderr, "Codec not found\n");
+//        exit(1);
+//    }
+//
+//    c = avcodec_alloc_context3(codec);
+//    if (!c) {
+//        fprintf(stderr, "Could not allocate audio codec context\n");
+//        exit(1);
+//    }
+//
+//    /* open it */
+//    if (avcodec_open2(c, codec, NULL) < 0) {
+//        fprintf(stderr, "Could not open codec\n");
+//        exit(1);
+//    }
+//
+//    fopen_s(&f,filename, "rb");
+//    if (!f) {
+//        fprintf(stderr, "Could not open %s\n", filename);
+//        exit(1);
+//    }
+//    fopen_s(&outfile,outfilename, "wb");
+//    if (!outfile) {
+//        av_free(c);
+//        exit(1);
+//    }
+//
+//    /* decode until eof */
+//    avpkt.data = inbuf;
+//    avpkt.size = fread(inbuf, 1, AUDIO_INBUF_SIZE, f);
+//
+//    while (avpkt.size > 0) {
+//        int got_frame = 0;
+//
+//        if (!decoded_frame) {
+//            if (!(decoded_frame = avcodec_alloc_frame())) {
+//                fprintf(stderr, "Could not allocate audio frame\n");
+//                exit(1);
+//            }
+//        } else
+//            avcodec_get_frame_defaults(decoded_frame);
+//
+//        len = avcodec_decode_audio4(c, decoded_frame, &got_frame, &avpkt);
+//        if (len < 0) {
+//            fprintf(stderr, "Error while decoding\n");
+//            exit(1);
+//        }
+//        if (got_frame) {
+//            /* if a frame has been decoded, output it */
+//            int data_size = av_samples_get_buffer_size(NULL, c->channels,
+//                                                       decoded_frame->nb_samples,
+//                                                       c->sample_fmt, 1);
+//            fwrite(decoded_frame->data[0], 1, data_size, outfile);
+//        }
+//        avpkt.size -= len;
+//        avpkt.data += len;
+//        avpkt.dts =
+//        avpkt.pts = AV_NOPTS_VALUE;
+//        if (avpkt.size < AUDIO_REFILL_THRESH) {
+//            /* Refill the input buffer, to avoid trying to decode
+//             * incomplete frames. Instead of this, one could also use
+//             * a parser, or use a proper container format through
+//             * libavformat. */
+//            memmove(inbuf, avpkt.data, avpkt.size);
+//            avpkt.data = inbuf;
+//            len = fread(avpkt.data + avpkt.size, 1,
+//                        AUDIO_INBUF_SIZE - avpkt.size, f);
+//            if (len > 0)
+//                avpkt.size += len;
+//        }
+//    }
+//
+//    fclose(outfile);
+//    fclose(f);
+//
+//    avcodec_close(c);
+//    av_free(c);
+//    avcodec_free_frame(&decoded_frame);
+//}
 
 //int Clibtrans::ConverAudio(const char* input_file, const char* output_file, int samples_rate, int channel)
 //{
@@ -225,9 +325,9 @@ end:
 //	avcodec_register_all();
 //    av_register_all();
 //	//////////////////////// 输入 ////////////////////////
-//	infmt_ctx = av_alloc_format_context();
+//	infmt_ctx = avformat_alloc_output_context();
 //	//打开输入文件
-//	if(av_open_input_file(&infmt_ctx, input_file, NULL, 0, NULL)!=0)
+//	if(avformat_open_input(&infmt_ctx, input_file, NULL, 0, NULL)!=0)
 //	{
 //		debug_string("can't open input file/n");
 //		return -1;
@@ -243,7 +343,7 @@ end:
 //	int audioindex=-1;
 //	for(unsigned int j = 0; j < infmt_ctx->nb_streams; j++)
 //	{   
-//		if(infmt_ctx->streams[j]->codec->codec_type == CODEC_TYPE_AUDIO)
+//		if(infmt_ctx->streams[j]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
 //		{
 //			audioindex=j;
 //			break;
@@ -273,10 +373,10 @@ end:
 //	
 //	//////////////////////// 输出 ////////////////////////
 //	/* 解析输出文件的格式 */
-//	AVOutputFormat *outfmt = guess_format(NULL, output_file, NULL);
+//	AVOutputFormat *outfmt = av_guess_format(NULL, output_file, NULL);
 //	if (!outfmt) {
 //		printf("Could not deduce output format from file extension: using MPEG./n");
-//		outfmt = guess_format("mpeg", NULL, NULL);
+//		outfmt = av_guess_format("mpeg", NULL, NULL);
 //	}
 //	if (!outfmt) {
 //		debug_string("Could not find suitable output format/n");
@@ -284,47 +384,40 @@ end:
 //	}
 //	outfmt->audio_codec = CODEC_ID_MP3;
 //	/* allocate the output media context */
-//	AVFormatContext *outfmt_ctx = av_alloc_format_context();
+//	AVFormatContext *outfmt_ctx = avformat_alloc_output_context();
 //	if (!outfmt_ctx) {
 //		debug_string("Memory error/n");
 //		return -7;
 //	}
 //	/* 保存输出文件的格式 */
 //	outfmt_ctx->oformat = outfmt;
-//	snprintf(outfmt_ctx->filename, sizeof(outfmt_ctx->filename), "%s", output_file);
+//	printf(outfmt_ctx->filename, sizeof(outfmt_ctx->filename), "%s", output_file);
 //	/* add the audio and video streams using the default format codecs and initialize the codecs */
 //	/* 输出文件的视频流编码器ID */
 //	AVCodecContext *outcode_ctx;
 //	AVCodec *outcodec;
 //	AVStream *audio_st = NULL/*, *video_st*/;
-//	//double audio_pts, video_pts;
-//	//if (outfmt->video_codec != CODEC_ID_NONE) {
-//	//	video_st = add_video_stream(outfmt_ctx, outfmt->video_codec);
-//	//}
 //	/* 输出文件的音频流编码器ID */
 //	if (outfmt->audio_codec != CODEC_ID_NONE) {
 //		audio_st = av_new_stream(outfmt_ctx, 1);
 //		
 //		outcode_ctx = audio_st->codec;
 //		outcode_ctx->codec_id = outfmt->audio_codec;
-//		outcode_ctx->codec_type = CODEC_TYPE_AUDIO;
-//		//oAcc->bit_rate =inCodecCtx->bit_rate ;
+//		outcode_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
 //		outcode_ctx->sample_rate = samples_rate > 0 ? samples_rate : incode_ctx->sample_rate;
-//		//outcode_ctx->time_base.den = 1;
-//		//outcode_ctx->time_base.num = outcode_ctx->sample_rate;
 //		outcode_ctx->channels    = channel > 0 ? channel : incode_ctx->channels;
 //		outcode_ctx->block_align = incode_ctx->block_align;
 //		if(outcode_ctx->block_align == 1 && outcode_ctx->codec_id == CODEC_ID_MP3)
 //			outcode_ctx->block_align = 0;
 //	}
 //	/* 设置输出参数 */
-//	if (av_set_parameters(outfmt_ctx, NULL) < 0) {
+//	if (avformat_write_header(outfmt_ctx, NULL) < 0) {
 //		debug_string("Invalid output format parameters/n");
 //		return -8;
 //	}
 //	
 //	/* 列出输出文件的格式信息 */
-//	dump_format(outfmt_ctx, 0, output_file, 1);
+//	av_dump_format(outfmt_ctx, 0, output_file, 1);
 //	strcpy(outfmt_ctx->title, infmt_ctx->title);
 //	strcpy(outfmt_ctx->author, infmt_ctx->author);
 //	strcpy(outfmt_ctx->copyright, infmt_ctx->copyright);
@@ -333,7 +426,7 @@ end:
 //	outfmt_ctx->year = infmt_ctx->year;
 //	outfmt_ctx->track = infmt_ctx->track;
 //	strcpy(outfmt_ctx->genre, infmt_ctx->genre);
-//	//dump_format(oc,0,output_file_name,1);//列出输出文件的相关流信息
+//
 //	//找到合适的音频编码器
 //	outcodec = avcodec_find_encoder(outfmt_ctx->oformat->audio_codec);//(CODEC_ID_AAC);
 //	if(!outcodec)
@@ -346,45 +439,7 @@ end:
 //		debug_string("can't open the output audio codec");
 //		return -10;
 //	}
-//	/* now that all the parameters are set, we can open the audio and
-//	video codecs and allocate the necessary encode buffers */
-//	//if (video_st)
-//	//	open_video(outfmt_ctx, video_st);
-//	/* 打开音频编码器 */
-//	/*
-//	int audioSize = 128 * 1024 * 4; //AVCODEC_MAX_AUDIO_FRAME_SIZE;//audio_outbuf_size/incode_ctx->channels;
-//	if (outcode_ctx->frame_size <= 1)
-//	{
-//		switch(outcode_ctx->codec_id)
-//		{
-//			case CODEC_ID_PCM_S32LE:
-//			case CODEC_ID_PCM_S32BE:
-//			case CODEC_ID_PCM_U32LE:
-//			case CODEC_ID_PCM_U32BE:
-//				audioSize <<= 1;
-//				break;
-//			case CODEC_ID_PCM_S24LE:
-//			case CODEC_ID_PCM_S24BE:
-//			case CODEC_ID_PCM_U24LE:
-//			case CODEC_ID_PCM_U24BE:
-//			case CODEC_ID_PCM_S24DAUD:
-//				audioSize = audioSize / 2 * 3;
-//				break;
-//			case CODEC_ID_PCM_S16LE:
-//			case CODEC_ID_PCM_S16BE:
-//			case CODEC_ID_PCM_U16LE:
-//			case CODEC_ID_PCM_U16BE:
-//				break;
-//			default:
-//				audioSize >>= 1;
-//				break;
-//		}
-//		outSampleSize = audioSize * 2 * outcode_ctx->channels;
-//	}
-//	else
-//	{
-//		outSampleSize = outcode_ctx->frame_size * 2 * outcode_ctx->channels;
-//	}
+//
 //	*/
 //	
 //	/* 如果输出文件不存在, 则创建输出文件 */
@@ -485,7 +540,7 @@ end:
 //	return ret;
 //}
 
-int Clibtrans::convertape()
+int Clibtrans::convertape(const char* outfilename,const char *filename)
 {
 /***************************************************************************************
 
@@ -504,7 +559,7 @@ untime library to "Mutlithreaded"
 ***************************************************************************************/
 
 	int nAudioBytes = 1048576*10;
-	const str_utf16 cOutputFile= (str_utf16)"c:\\Noise.ape";
+	const str_utf16 cOutputFile= (str_utf16)outfilename;
 	
 	printf("Creating file: %s\n", cOutputFile);
 	
