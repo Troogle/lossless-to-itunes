@@ -11,8 +11,12 @@
     ' VB+lib7z-->重新压缩
 
 
-
+    Public Declare Function convertape Lib "libtrans.dll" Alias "?convertape@@YGHPBD0@Z" (ByRef a As String, ByRef b As String) As Long
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        convertape("1.ape", "1.wav")
     End Sub
 End Class

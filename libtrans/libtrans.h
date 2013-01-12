@@ -10,19 +10,12 @@
 #define LIBTRANS_API __declspec(dllimport)
 #endif
 
+EXTERN_C
 // 此类是从 libtrans.dll 导出的
 class LIBTRANS_API Clibtrans {
 public:
 	Clibtrans(void);
-	int convertape(const char* outfilename,const char *filename);
-	int ConverAudio(const char* input_file, const char* output_file, int samples_rate, int channel);
-	int audio_dec(const char *outfilename, const char *filename);
-private:
-	static int decode_packet(int *got_frame, int cached);
-	static int open_codec_context(int *stream_idx,AVFormatContext *fmt_ctx, enum AVMediaType type);
-	static int get_format_from_sample_fmt(const char **fmt,enum AVSampleFormat sample_fmt);
-		int audio_dec2(const char *outfilename, const char *filename);
 	// TODO: 在此添加您的方法。
 };
-
+LIBTRANS_API int __stdcall convertape(const char* outfilename,const char *filename);
 LIBTRANS_API int fnlibtrans(void);
