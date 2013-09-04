@@ -1,5 +1,7 @@
-#ifndef APE_IO_H
-#define APE_IO_H
+#pragma once
+
+namespace APE
+{
 
 #ifndef FILE_BEGIN
     #define FILE_BEGIN        0
@@ -14,11 +16,9 @@
 #endif
 
 class CIO
-{
-    
+{   
 public:
-
-    //construction / destruction
+    // construction / destruction
     CIO() { }
     virtual ~CIO() { };
 
@@ -46,4 +46,4 @@ public:
     virtual int GetName(wchar_t * pBuffer) = 0;
 };
 
-#endif // #ifndef APE_IO_H
+}

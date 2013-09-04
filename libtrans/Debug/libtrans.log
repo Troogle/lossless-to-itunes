@@ -1,17 +1,46 @@
-﻿生成启动时间为 2013/01/10 周四 11:31:11。
-     1>项目“G:\Desktop\Music\MusicProject\libtrans\libtrans.vcxproj”在节点 2 上(Build 个目标)。
+﻿生成启动时间为 2013/8/31 21:08:54。
+     1>项目“G:\Progs\Music\simplified music tool\libtrans\libtrans.vcxproj”在节点 2 上(Rebuild 个目标)。
      1>ClCompile:
-         L:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D LIBTRANS_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\libtrans.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt libtrans.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\libtrans.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\libtrans.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt libtrans.cpp
          libtrans.cpp
+         No platform set for MACLib, defaulting to Windows
        Link:
-         L:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"G:\Desktop\Music\MusicProject\Debug\libtrans.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib MACLib.lib avcodec.lib avformat.lib avutil.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"G:\Desktop\Music\MusicProject\Debug\libtrans.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"G:\Desktop\Music\MusicProject\Debug\libtrans.lib" /MACHINE:X86 /DLL Debug\dllmain.obj
-         Debug\libtrans.obj
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"G:\Progs\Music\simplified music tool\Debug\libtrans.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib libtta.lib MACLib.lib /NODEFAULTLIB:LIBCMT /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"G:\Progs\Music\simplified music tool\Debug\libtrans.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"G:\Progs\Music\simplified music tool\Debug\libtrans.lib" /MACHINE:X86 Debug\libtrans.obj
          Debug\stdafx.obj
-            正在创建库 G:\Desktop\Music\MusicProject\Debug\libtrans.lib 和对象 G:\Desktop\Music\MusicProject\Debug\libtrans.exp
-     1>LINK : warning LNK4098: 默认库“LIBCMT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
-         libtrans.vcxproj -> G:\Desktop\Music\MusicProject\Debug\libtrans.dll
-     1>已完成生成项目“G:\Desktop\Music\MusicProject\libtrans\libtrans.vcxproj”(Build 个目标)的操作。
+         libtta.lib(libtta.obj) : 找到 MSIL .netmodule 或使用 /GL 编译的模块；正在使用 /LTCG 重新启动链接；将 /LTCG 添加到链接命令行以改进链接器性能
+     1>LINK : warning LNK4075: 忽略“/INCREMENTAL”(由于“/LTCG”规范)
+     1>libtrans.obj : warning LNK4075: 忽略“/EDITANDCONTINUE”(由于“/OPT:LBR”规范)
+            正在创建库 G:\Progs\Music\simplified music tool\Debug\libtrans.lib 和对象 G:\Progs\Music\simplified music tool\Debug\libtrans.exp
+         正在生成代码
+         已完成代码的生成
+     1>MACLib.lib(APESimple.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APESimple.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(MACLib.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(MACLib.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APECompress.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APECompress.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APECompressCore.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APECompressCore.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APECompressCreate.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APECompressCreate.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(BitArray.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(BitArray.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APEDecompress.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APEDecompress.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(UnBitArray.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(UnBitArray.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(UnBitArrayBase.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(UnBitArrayBase.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APEHeader.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APEHeader.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APEInfo.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APEInfo.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APELink.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APELink.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(APETag.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(APETag.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(WAVInputSource.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(WAVInputSource.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(CharacterHelper.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(CharacterHelper.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(CircleBuffer.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(CircleBuffer.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(GlobalFunctions.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(GlobalFunctions.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(MACProgressHelper.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(MACProgressHelper.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(MD5.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(MD5.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(Prepare.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(Prepare.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(WinFileIO.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(WinFileIO.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(NewPredictor.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(NewPredictor.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>MACLib.lib(NNFilter.obj) : warning LNK4099: 未找到 PDB“vc110.pdb”(使用“MACLib.lib(NNFilter.obj)”或在“G:\Progs\Music\simplified music tool\Debug\vc110.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+         libtrans.vcxproj -> G:\Progs\Music\simplified music tool\Debug\libtrans.exe
+     1>已完成生成项目“G:\Progs\Music\simplified music tool\libtrans\libtrans.vcxproj”(Rebuild 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:00.58
+已用时间 00:00:01.67

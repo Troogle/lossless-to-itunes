@@ -24,3 +24,16 @@ G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.vbproj.Generat
 G:\Progs\Music\MusicProject\MusicProject\obj\Debug\MusicProject.exe
 G:\Progs\Music\MusicProject\MusicProject\obj\Debug\MusicProject.xml
 G:\Progs\Music\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\MusicProject.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\MusicProject.pdb
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\MusicProject.xml
+G:\Progs\Music\simplified music tool\MusicProject\obj\Debug\MusicProject.Form1.resources
+G:\Progs\Music\simplified music tool\MusicProject\obj\Debug\MusicProject.Resources.resources
+G:\Progs\Music\simplified music tool\MusicProject\obj\Debug\MusicProject.vbproj.GenerateResource.Cache
+G:\Progs\Music\simplified music tool\MusicProject\obj\Debug\MusicProject.exe
+G:\Progs\Music\simplified music tool\MusicProject\obj\Debug\MusicProject.xml
+G:\Progs\Music\simplified music tool\MusicProject\obj\Debug\MusicProject.pdb
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\flac.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\MAC.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\Tak.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Debug\tta.exe

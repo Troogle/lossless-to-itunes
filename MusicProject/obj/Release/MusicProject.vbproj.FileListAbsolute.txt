@@ -1,0 +1,14 @@
+G:\Progs\Music\simplified music tool\MusicProject\bin\Release\flac.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Release\Tak.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Release\MusicProject.exe
+G:\Progs\Music\simplified music tool\MusicProject\bin\Release\MusicProject.pdb
+G:\Progs\Music\simplified music tool\MusicProject\bin\Release\MusicProject.xml
+G:\Progs\Music\simplified music tool\MusicProject\obj\Release\MusicProject.Form1.resources
+G:\Progs\Music\simplified music tool\MusicProject\obj\Release\MusicProject.Resources.resources
+G:\Progs\Music\simplified music tool\MusicProject\obj\Release\MusicProject.vbproj.GenerateResource.Cache
+G:\Progs\Music\simplified music tool\MusicProject\obj\Release\MusicProject.exe
+G:\Progs\Music\simplified music tool\MusicProject\obj\Release\MusicProject.xml
+G:\Progs\Music\simplified music tool\MusicProject\obj\Release\MusicProject.pdb
+G:\Progs\Music\Music tool\MusicProject\obj\Release\MusicProject.exe
+G:\Progs\Music\Music tool\MusicProject\obj\Release\MusicProject.xml
+G:\Progs\Music\Music tool\MusicProject\obj\Release\MusicProject.pdb

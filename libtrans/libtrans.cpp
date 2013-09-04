@@ -1,171 +1,293 @@
-// libtrans.cpp : 定义 DLL 应用程序的导出函数。
+// libtrans.cpp : 定义控制台应用程序的入口点。
 //
 
 #include "stdafx.h"
 #include "libtrans.h"
-
-// 这是导出函数的一个示例。
-LIBTRANS_API int fnlibtrans(void)
-{
-	return 42;
+static TTAwchar *myname = NULL;
+TICK_COUNT_TYPE g_nInitialTickCount = 0;
+//tta
+void tta_strerror(TTA_CODEC_STATUS e) {
+	using namespace tta;
+	switch(e) {
+		case TTA_OPEN_ERROR: tta_print("\r%s: can't open file\n", myname); break;
+		case TTA_FORMAT_ERROR: tta_print("\r%s: not compatible file format\n", myname); break;
+		case TTA_FILE_ERROR: tta_print("\r%s: file is corrupted\n", myname); break;
+		case TTA_READ_ERROR: tta_print("\r%s: can't read from input file\n", myname); break;
+		case TTA_WRITE_ERROR: tta_print("\r%s: can't write to output file\n", myname); break;
+		case TTA_MEMORY_ERROR: tta_print("\r%s: insufficient memory available\n", myname); break;
+		case TTA_SEEK_ERROR: tta_print("\r%s: file seek error\n", myname); break;
+		case TTA_PASSWORD_ERROR: tta_print("\r%s: password protected file\n", myname); break;
+		case TTA_NOT_SUPPORTED: tta_print("\r%s: unsupported architecture type\n", myname); break;
+		default: tta_print("\rUnknown error\n"); break;
+	}
 }
+int write_wav_hdr(HANDLE outfile, WAVE_hdr *wave_hdr, TTAuint32 data_size) {
+	TTAuint32 result;
+	WAVE_subchunk_hdr subchunk_hdr;
 
-// 这是已导出类的构造函数。
-// 有关类定义的信息，请参阅 libtrans.h
-Clibtrans::Clibtrans()
-{
-	return;
-}
-inline void debug_string(char* errconfig){fprintf(stderr, errconfig);}
-int __stdcall convertape(const char* outfilename,const char *filename)
-{
-	int nAudioBytes = MAX_AUDIO_BYTES_UNKNOWN;
-	const str_utf16 cOutputFile= (str_utf16)outfilename;
-	avcodec_register_all();
-	av_register_all();
-	//////////////////////// 输入 ////////////////////////
-	AVFormatContext *infmt_ctx;
-	avformat_alloc_output_context2(&infmt_ctx,NULL,NULL,filename);
-	//打开输入文件
-	if(avformat_open_input(&infmt_ctx, filename, NULL, NULL)<0)
-	{
-		debug_string("can't open input file/n");
-		return -1;
-	} 
-	//取出流信息
-	if(av_find_stream_info(infmt_ctx) <0)
-	{
-		debug_string("can't find suitable codec parameters/n");
-		return -2;
-	}
+	subchunk_hdr.subchunk_id = data_SIGN;
+	subchunk_hdr.subchunk_size = data_size;
 
-	// 查找音频流信息
-	int audioindex=-1;
-	for(unsigned int j = 0; j < infmt_ctx->nb_streams; j++)
-	{   
-		if(infmt_ctx->streams[j]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
-		{
-			audioindex=j;
-			break;
-		}
-	}
-	if(audioindex == -1) //没有找到音频流
-	{
-		debug_string("can't find audio stream/n");
-		return -3;
-	}
-	AVCodecContext *incodec_ctx=NULL;
-	AVCodec *incodec;
-	incodec_ctx = infmt_ctx->streams[audioindex]->codec;
-	//找到合适的音频解码器
-	incodec = avcodec_find_decoder(incodec_ctx->codec_id);
-	if(incodec == NULL)
-	{
-		debug_string("can't find suitable audio decoder/n");
-		return -4;
-	}
-	//打开该音频解码器
-	incodec_ctx = avcodec_alloc_context3(incodec);
-    if (!incodec_ctx) {
-        debug_string("Could not allocate audio codec context\n");
-        exit(1);
-    }
-	if(avcodec_open2(incodec_ctx, incodec,NULL) < 0)
-	{
-		debug_string("can't open the audio decoder/n");
-		return -5;
-	}
-	// set the output WAV format
-	WAVEFORMATEX wfeAudioFormat; FillWaveFormatEx(&wfeAudioFormat, incodec_ctx->sample_rate, 16, incodec_ctx->channels);
+	// Write WAVE header
+	if (!tta_write(outfile, wave_hdr, sizeof(WAVE_hdr), result) ||
+		result != sizeof(WAVE_hdr)) return -1;
 
-	#define INBUF_SIZE 4096
-    #define AUDIO_INBUF_SIZE 20480
-    #define AUDIO_REFILL_THRESH 4096
-    int len;
-    FILE *f;
-    uint8_t inbuf[AUDIO_INBUF_SIZE + FF_INPUT_BUFFER_PADDING_SIZE];
-    AVPacket avpkt;
-    AVFrame *decoded_frame = NULL;
-    av_init_packet(&avpkt);
+	// Write Subchunk header
+	if (!tta_write(outfile, &subchunk_hdr, sizeof(WAVE_subchunk_hdr), result) ||
+		result != sizeof(WAVE_subchunk_hdr)) return -1;
 
-    fopen_s(&f,filename, "rb");
-    if (!f) {
-        debug_string("Could not open file\n");
-        exit(1);
-    }
-
-	IAPECompress * pAPECompress = CreateIAPECompress();
-	int nRetVal = pAPECompress->Start(&cOutputFile, &wfeAudioFormat, nAudioBytes, 
-	COMPRESSION_LEVEL_NORMAL, NULL, CREATE_WAV_HEADER_ON_DECOMPRESSION);
-
-	/* decode until eof */
-	//on-the-fly encode
-    avpkt.data = inbuf;
-    avpkt.size = fread(inbuf, 1, AUDIO_INBUF_SIZE, f);
-
-    while (avpkt.size > 0) {
-        int got_frame = 0;
-        if (!decoded_frame) {
-            if (!(decoded_frame = avcodec_alloc_frame())) {
-                debug_string("Could not allocate audio frame\n");
-                exit(1);
-            }
-        } else
-        avcodec_get_frame_defaults(decoded_frame);
-        len = avcodec_decode_audio4(incodec_ctx, decoded_frame, &got_frame, &avpkt);
-        if (len < 0) {
-            debug_string( "Error while decoding\n");
-            exit(1);
-        }
-        if (got_frame) {
-            /* if a frame has been decoded, output it */
-            int data_size = av_samples_get_buffer_size(NULL, incodec_ctx->channels,
-                                                       decoded_frame->nb_samples,
-                                                       incodec_ctx->sample_fmt, 1);
-		// lock the compression buffer
-		int nBufferBytesAvailable = 0;
-		unsigned char * pBuffer = pAPECompress->LockBuffer(&nBufferBytesAvailable);
-
-		pBuffer=decoded_frame->data[0];
-		
-		// unlock the buffer and let it get processed
-		int nRetVal = pAPECompress->UnlockBuffer(data_size, TRUE);
-		if (nRetVal != 0)
-		{
-			fprintf(stderr,"Error Encoding Frame (error: %d)\n", nRetVal);
-			break;
-		}
-        }
-        avpkt.size -= len;
-        avpkt.data += len;
-        avpkt.dts =
-        avpkt.pts = AV_NOPTS_VALUE;
-        if (avpkt.size < AUDIO_REFILL_THRESH) {
-            /* Refill the input buffer, to avoid trying to decode
-             * incomplete frames. Instead of this, one could also use
-             * a parser, or use a proper container format through
-             * libavformat. */
-            memmove(inbuf, avpkt.data, avpkt.size);
-            avpkt.data = inbuf;
-            len = fread(avpkt.data + avpkt.size, 1,
-                        AUDIO_INBUF_SIZE - avpkt.size, f);
-            if (len > 0)
-                avpkt.size += len;
-        }
-    }
-
-	//clean up
-
-    fclose(f);
-    avcodec_close(incodec_ctx);
-    av_free(incodec_ctx);
-    avcodec_free_frame(&decoded_frame);
-	if (pAPECompress->Finish(NULL, 0, 0) != 0)
-	{
-		debug_string("Error finishing encoder.\n");
-	}
-	SAFE_DELETE(pAPECompress)
-	debug_string("Done.\n");
 	return 0;
+} // write_wav_hdr
+void CALLBACK tta_callback(TTAuint32 rate, TTAuint32 fnum, TTAuint32 frames) {
+	TTAuint32 pcnt = (TTAuint32)(fnum * 100. / frames);
+	if (!(pcnt % 10))
+		tta_print("\rProgress: %02d%%", pcnt);
+} // tta_callback
+TTAint32 CALLBACK read_callback(TTA_io_callback *io, TTAuint8 *buffer, TTAuint32 size) {
+	TTA_io_callback_wrapper *iocb = (TTA_io_callback_wrapper *)io; 
+	TTAint32 result;
+	if (tta_read(iocb->handle, buffer, size, result))
+		return result;
+	return 0;
+} // read_callback
+TTAint64 CALLBACK seek_callback(TTA_io_callback *io, TTAint64 offset) {
+	TTA_io_callback_wrapper *iocb = (TTA_io_callback_wrapper *)io; 
+	return tta_seek(iocb->handle, offset);
+} // seek_callback
+int ttadecompressW(HANDLE infile, HANDLE outfile) {
+	using namespace tta;
+	WAVE_hdr wave_hdr;
+	tta_decoder *TTA;
+	TTA_io_callback_wrapper io;
+	TTAuint8 *buffer = NULL;
+	TTAuint32 buf_size, smp_size, data_size, res;
+	TTAint32 len;
+	TTA_info info;
+	int ret = -1;
 
+	io.iocb.read = &read_callback;
+	io.iocb.seek = &seek_callback;
+	io.iocb.write = NULL;
+	io.handle = infile;
+
+	TTA = new tta_decoder((TTA_io_callback *) &io);
+
+	try {
+		TTA->init_get_info(&info, 0);
+	} catch (tta_exception ex) {
+		tta_strerror(ex.code());
+		goto done;
+	}
+
+	smp_size = info.nch * ((info.bps + 7) / 8);
+	buf_size = PCM_BUFFER_LENGTH * smp_size;
+
+	// allocate memory for PCM buffer
+	buffer = (TTAuint8 *) tta_malloc(buf_size + 4); // +4 for WRITE_BUFFER macro
+	if (buffer == NULL) {
+		tta_strerror(TTA_MEMORY_ERROR);
+		goto done;
+	}
+
+	// Fill in WAV header
+	data_size = info.samples * smp_size;
+	tta_memclear(&wave_hdr, sizeof (wave_hdr));
+	wave_hdr.chunk_id = RIFF_SIGN;
+	wave_hdr.chunk_size = data_size + 36;
+	wave_hdr.format = WAVE_SIGN;
+	wave_hdr.subchunk_id = fmt_SIGN;
+	wave_hdr.subchunk_size = 16;
+	wave_hdr.audio_format = 1;
+	wave_hdr.num_channels = (TTAuint16) info.nch;
+	wave_hdr.sample_rate = info.sps;
+	wave_hdr.bits_per_sample = info.bps;
+	wave_hdr.byte_rate = info.sps * smp_size;
+	wave_hdr.block_align = (TTAuint16) smp_size;
+
+	// Write WAVE header
+	if (write_wav_hdr(outfile, &wave_hdr, data_size)){
+		tta_strerror(TTA_WRITE_ERROR);
+		goto done;
+	}
+
+	try {
+		while (1) {
+			len = TTA->process_stream(buffer, buf_size, tta_callback);
+			if (len) {
+				if (!tta_write(outfile, buffer, len * smp_size, res) || !res)
+					throw tta_exception(TTA_WRITE_ERROR);
+			} else break;
+		}
+		ret = 0;
+	} catch (tta_exception ex) {
+		tta_strerror(ex.code());
+	}
+
+done:
+	delete TTA;
+	if (buffer) tta_free(buffer);
+
+	return ret;
+} // decompress
+void usage() {
+	tta_print("\rUsage:\tlibtrans [htkfa] input_file output_file\n\n");
+
+	tta_print("\t-h\tprint help\n");
+	tta_print("\t-t\tdecode tta file\n");
+	tta_print("\t-k\tdecode tak file\n");
+	tta_print("\t-f\tdecode flac file\n");
+	tta_print("\t-a\tencode ape file\n");
+	tta_print("Project site: NULL for now\n");
+} // usage
+int ttadecompress(int argc, _TCHAR* argv[]){
+	using namespace tta;
+    TTAwchar *fname_in, *fname_out;
+	HANDLE infile = INVALID_HANDLE_VALUE;
+	HANDLE outfile = INVALID_HANDLE_VALUE;
+	TTAuint32 start, end;
+	int ret=0;
+	myname = argv[0];
+	if (argc > 3) {
+	fname_in = argv[argc - 2];
+	fname_out = argv[argc - 1];
+		argc -= 2;
+	} else {
+		usage();
+		goto done;
+	}
+
+	infile = tta_open_read(fname_in);
+	if (infile == INVALID_HANDLE_VALUE) {
+		tta_strerror(TTA_OPEN_ERROR);
+		goto done;
+	}
+	outfile = tta_open_write(fname_out);
+	if (outfile == INVALID_HANDLE_VALUE) {
+		tta_strerror(TTA_OPEN_ERROR);
+		goto done;
+	}
+	start = GetTickCount();
+	tta_print("\rDecoding: \"%s\" to \"%s\"\n", fname_in, fname_out);
+	ret = ttadecompressW(infile, outfile);
+	if (!ret) {
+	end = GetTickCount();
+	tta_print("\rTime: %.3f sec.\n",
+			(end - start) / 1000.);
+     	}
+	if (infile != STDIN_FILENO) tta_close(infile);
+	if (outfile != STDOUT_FILENO) {
+	tta_close(outfile);
+	if (ret) tta_unlink(fname_out);
+	}
+	done:
+	return ret;
 }
+//ape
+bool FileExists(wchar_t * pFilename)
+{    
+    if (0 == wcscmp(pFilename, L"-")  ||  0 == wcscmp(pFilename, L"/dev/stdin"))
+        return true;
+    bool bFound = false;
+    WIN32_FIND_DATA WFD;
+    HANDLE hFind = FindFirstFile(pFilename, &WFD);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        bFound = true;
+        FindClose(hFind);
+    }
+    return bFound;
+}
+void CALLBACK ProgressCallback(int nPercentageDone)
+{
+	using namespace APE;
+    // get the current tick count
+	TICK_COUNT_TYPE  nTickCount;
+	TICK_COUNT_READ(nTickCount);
+
+	// calculate the progress
+	double dProgress = nPercentageDone / 1.e5;											// [0...1]
+	double dElapsed = (double) (nTickCount - g_nInitialTickCount) / TICK_COUNT_FREQ;	// seconds
+	double dRemaining = dElapsed * ((1.0 / dProgress) - 1.0);							// seconds
+
+	// output the progress
+	_ftprintf(stderr, _T("Progress: %.1f%% (%.1f seconds remaining, %.1f seconds total)          \r"), 
+		dProgress * 100, dRemaining, dElapsed);
+}
+int apecompress(int argc, TCHAR * argv[]){
+	using namespace APE;
+	CSmartPtr<wchar_t> spInputFilename; CSmartPtr<wchar_t> spOutputFilename;
+	int nRetVal = ERROR_UNDEFINED;
+	int nCompressionLevel;
+	int nPercentageDone;
+	spInputFilename.Assign(argv[2], TRUE, FALSE);
+	spOutputFilename.Assign(argv[3], TRUE, FALSE);
+	// verify that the input file exists
+	if (!FileExists(spInputFilename))
+	{
+		_ftprintf(stderr, _T("Input File Not Found...\n\n"));
+		exit(-1);
+	}
+	nCompressionLevel =3000;
+	// set the initial tick count
+	TICK_COUNT_READ(g_nInitialTickCount);
+	// process
+	int nKillFlag = 0;
+	_ftprintf(stderr, _T("Compressing (%s)...\n"), _T("high"));
+	nRetVal = CompressFileW(spInputFilename, spOutputFilename, nCompressionLevel, &nPercentageDone, ProgressCallback, &nKillFlag);
+
+	if (nRetVal == ERROR_SUCCESS) 
+		_ftprintf(stderr, _T("\nSuccess...\n"));
+	else 
+		_ftprintf(stderr, _T("\nError: %i\n"), nRetVal);
+	return nRetVal;
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	setlocale(LC_ALL, LOCALE);
+	int act = 0;
+	int ret = -1;
+	tta_print("\r\nGoogle's lossless audio encoder/decoder \n TTAversion %s\n", TTA_VERSION);
+	tta_print(" APEversion %s\n", MAC_VERSION_STRING);
+	switch (argv[1][0]) {
+		case 'h': // print help
+			usage();
+			goto done;
+		case 't': // decode tta
+			act = 1;
+			break;
+		case 'k': // decode tak
+			act = 2;
+			break;
+		case 'f': // decode flac
+			act = 3;
+			break;
+		case 'a': // encode ape
+			act=4;
+			break;
+		case '?':usage();
+		default:
+			goto done;
+	}
+		if (!act) {
+		tta_print("\r%s: commandline options invivlid\n", myname);
+		goto done;
+	}
+
+	// process
+	switch (act) {
+	case 1:
+		ret=ttadecompress(argc,argv);
+		break;
+	case 4:
+		ret=apecompress(argc,argv);
+     	break;
+	}
+
+done:
+	return ret;
+}
+
+
+

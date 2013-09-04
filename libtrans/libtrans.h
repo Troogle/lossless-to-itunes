@@ -1,21 +1,54 @@
-// 下列 ifdef 块是创建使从 DLL 导出更简单的
-// 宏的标准方法。此 DLL 中的所有文件都是用命令行上定义的 LIBTRANS_EXPORTS
-// 符号编译的。在使用此 DLL 的
-// 任何其他项目上不应定义此符号。这样，源文件中包含此文件的任何其他项目都会将
-// LIBTRANS_API 函数视为是从 DLL 导入的，而此 DLL 则将用此宏定义的
-// 符号视为是被导出的。
-#ifdef LIBTRANS_EXPORTS
-#define LIBTRANS_API __declspec(dllexport)
-#else
-#define LIBTRANS_API __declspec(dllimport)
-#endif
-
-EXTERN_C
-// 此类是从 libtrans.dll 导出的
-class LIBTRANS_API Clibtrans {
-public:
-	Clibtrans(void);
-	// TODO: 在此添加您的方法。
-};
-LIBTRANS_API int __stdcall convertape(const char* outfilename,const char *filename);
-LIBTRANS_API int fnlibtrans(void);
+#pragma once
+//tta
+#include <stdio.h>
+#include <tchar.h>
+#include "libtta.h"
+#include "config.h"
+#include "tta.h"
+#define TTA_VERSION L(VERSION)
+#define RIFF_SIGN (0x46464952)
+#define WAVE_SIGN (0x45564157)
+#define fmt_SIGN  (0x20746D66)
+#define data_SIGN (0x61746164)
+#define WAVE_FORMAT_PCM 1
+#define WAVE_FORMAT_EXTENSIBLE 0xFFFE 
+#define PCM_BUFFER_LENGTH 5120
+typedef struct {
+	TTAuint32 chunk_id;
+	TTAuint32 chunk_size;
+	TTAuint32 format;
+	TTAuint32 subchunk_id;
+	TTAuint32 subchunk_size;
+	TTAuint16 audio_format;
+	TTAuint16 num_channels;
+	TTAuint32 sample_rate;
+	TTAuint32 byte_rate;
+	TTAuint16 block_align;
+	TTAuint16 bits_per_sample;
+} WAVE_hdr;
+typedef struct {
+	TTAuint32 subchunk_id;
+	TTAuint32 subchunk_size;
+} WAVE_subchunk_hdr;
+typedef struct {
+	TTAuint32 f1;
+	TTAuint16 f2;
+	TTAuint16 f3;
+	TTAuint8 f4[8];
+} WAVE_subformat;
+typedef struct {
+	TTAuint16 cb_size;
+	TTAuint16 valid_bits;
+	TTAuint32 ch_mask;
+	WAVE_subformat est;
+} WAVE_ext_hdr;
+typedef struct {
+	TTA_io_callback iocb;
+	HANDLE handle;
+} TTA_io_callback_wrapper;
+//ape
+#include "All.h"
+#include <stdio.h>
+#include "MACLib.h"
+//tak
+//flac

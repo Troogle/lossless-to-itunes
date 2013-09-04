@@ -1,5 +1,4 @@
-#ifndef APE_WINDOWS_ENVIRONMENT_H
-#define APE_WINDOWS_ENVIRONMENT_H
+#pragma once
 
 /*****************************************************************************************
 Windows version
@@ -22,9 +21,7 @@ Unicode
 #endif
 
 /*****************************************************************************************
-Visual Studio 2008 defines
+Visual Studio defines
 *****************************************************************************************/
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRT_NON_CONFORMING_SWPRINTFS
-
-#endif // #APE_WINDOWS_ENVIRONMENT_H
