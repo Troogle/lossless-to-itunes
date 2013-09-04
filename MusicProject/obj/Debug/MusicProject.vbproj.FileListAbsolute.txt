@@ -21,3 +21,6 @@ G:\Desktop\Music\MusicProject\MusicProject\bin\Debug\MusicProject.xml
 G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.Form1.resources
 G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.Resources.resources
 G:\Desktop\Music\MusicProject\MusicProject\obj\Debug\MusicProject.vbproj.GenerateResource.Cache
+G:\Progs\Music\MusicProject\MusicProject\obj\Debug\MusicProject.exe
+G:\Progs\Music\MusicProject\MusicProject\obj\Debug\MusicProject.xml
+G:\Progs\Music\MusicProject\MusicProject\obj\Debug\MusicProject.pdb
